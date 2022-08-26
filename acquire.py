@@ -16,8 +16,8 @@ def get_logs_dataset():
         
         df = pd.read_csv(filename)
 
-        # let's print the shape
-        print(f'df shape: {df.shape}')
+        # printing the shape
+        print(f'initial df shape: {df.shape}')
 
         return df
 
@@ -39,9 +39,9 @@ def get_logs_dataset():
                 slack,
                 start_date,
                 end_date,
-                program_id,
-                FROM curriculum_logs.logs
-                LEFT JOIN curriculum_logs.cohorts ON curriculum_logs.logs.cohort_id = curriculum_logs.cohorts.id;
+                program_id
+                FROM logs
+                LEFT JOIN cohorts ON logs.cohort_id = cohorts.id;
                 '''
 
         # creating the df
@@ -49,5 +49,8 @@ def get_logs_dataset():
 
         # cache the df to local repository 
         df.to_csv("curriculum_logs.csv", index = False)
+
+        # printing the shape
+        print(f'initial df shape: {df.shape}')
 
         return df

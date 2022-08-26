@@ -35,7 +35,19 @@ def mass_log_clean(df):
     new_df["datetime"] = pd.to_datetime(new_df["datetime"])
 
     # setting the date column to index
-    new_df = df.set_index("datetime").sort_index()
+    new_df = new_df.set_index("datetime").rename_axis(index = None).sort_index(ascending = True)
+
+    # creating a day column 
+    new_df["day"] = new_df.index.strftime("%A")
+
+    # creating a month column 
+    new_df["month"] = new_df.index.strftime("%B")
+
+    # creating a year column 
+    new_df["year"] = new_df.index.strftime("%Y")
+
+    # drop redundant date/time columns
+    new_df = new_df.drop(columns = ["date", "time"])
 
     new_df["program_type"] = new_df["program_id"].map(
         {1: "FS_PHP_program", 
@@ -45,7 +57,7 @@ def mass_log_clean(df):
         np.nan: None})
 
      # setting the program_id to object type
-    new_df[["user_id", "program_id"]] = new_df[["user_id", "program_id"]].astype(object)
+    new_df[["user_id", "cohort_id", "program_id"]] = new_df[["user_id", "cohort_id", "program_id"]].astype(object)
 
     # cleaning columns with empty class or nulls
     new_df = new_df.apply(lambda x: x.str.strip() if isinstance(x, str) else x).replace('', None)
@@ -54,33 +66,33 @@ def mass_log_clean(df):
     new_df = new_df.dropna(subset=['endpoint'])
 
     # Data Science program/class clean up
-    new_df['class'] = np.where((new_df['class'] == 'fundamentals') & (df.program_type == 'DS_program'), 'ds_fundamentals', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '1-fundamentals') & (df.program_type == 'DS_program'), 'ds_fundamentals', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'storytelling') & (df.program_type == 'DS_program'), 'ds_storytelling', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '2-storytelling') & (df.program_type == 'DS_program'), 'ds_storytelling', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'sql') & (df.program_type == 'DS_program'), 'ds_sql', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '3-sql') & (df.program_type == 'DS_program'), 'ds_sql', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'python') & (df.program_type == 'DS_program'), 'ds_python', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '4-python') & (df.program_type == 'DS_program'), 'ds_python', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'stats') & (df.program_type == 'DS_program'), 'ds_stats', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '5-stats') & (df.program_type == 'DS_program'), 'ds_stats', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '6-regression') & (df.program_type == 'DS_program'), 'ds_regression', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'regression') & (df.program_type == 'DS_program'), 'ds_regression', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'classification') & (df.program_type == 'DS_program'), 'ds_classification', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '7-classification') & (df.program_type == 'DS_program'), 'ds_classification', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'clustering') & (df.program_type == 'DS_program'), 'ds_clustering', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '8-clustering') & (df.program_type == 'DS_program'), 'ds_clustering', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'timeseries') & (df.program_type == 'DS_program'), 'ds_timeseries', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '9-timeseries') & (df.program_type == 'DS_program'), 'ds_timeseries', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'anomaly-detection') & (df.program_type == 'DS_program'), 'ds_anomaly-detection', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '10-anomaly-detection') & (df.program_type == 'DS_program'), 'ds_anomaly-detection', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'nlp') & (df.program_type == 'DS_program'), 'ds_nlp', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '11-nlp') & (df.program_type == 'DS_program'), 'ds_nlp', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'distributed-ml') & (df.program_type == 'DS_program'), 'ds_distributed-ml', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '12-distributed-ml') & (df.program_type == 'DS_program'), 'ds_distributed-ml', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'advanced-topics') & (df.program_type == 'DS_program'), 'ds_advanced-topics', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == '13-advanced-topics') & (df.program_type == 'DS_program'), 'ds_advanced-topics', new_df['class'])
-    new_df['class'] = np.where((new_df['class'] == 'appendix') & (df.program_type == 'DS_program'), 'ds_appendix', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'fundamentals') & (new_df.program_type == 'DS_program'), 'ds_fundamentals', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '1-fundamentals') & (new_df.program_type == 'DS_program'), 'ds_fundamentals', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'storytelling') & (new_df.program_type == 'DS_program'), 'ds_storytelling', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '2-storytelling') & (new_df.program_type == 'DS_program'), 'ds_storytelling', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'sql') & (new_df.program_type == 'DS_program'), 'ds_sql', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '3-sql') & (new_df.program_type == 'DS_program'), 'ds_sql', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'python') & (new_df.program_type == 'DS_program'), 'ds_python', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '4-python') & (new_df.program_type == 'DS_program'), 'ds_python', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'stats') & (new_df.program_type == 'DS_program'), 'ds_stats', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '5-stats') & (new_df.program_type == 'DS_program'), 'ds_stats', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '6-regression') & (new_df.program_type == 'DS_program'), 'ds_regression', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'regression') & (new_df.program_type == 'DS_program'), 'ds_regression', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'classification') & (new_df.program_type == 'DS_program'), 'ds_classification', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '7-classification') & (new_df.program_type == 'DS_program'), 'ds_classification', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'clustering') & (new_df.program_type == 'DS_program'), 'ds_clustering', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '8-clustering') & (new_df.program_type == 'DS_program'), 'ds_clustering', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'timeseries') & (new_df.program_type == 'DS_program'), 'ds_timeseries', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '9-timeseries') & (new_df.program_type == 'DS_program'), 'ds_timeseries', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'anomaly-detection') & (new_df.program_type == 'DS_program'), 'ds_anomaly-detection', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '10-anomaly-detection') & (new_df.program_type == 'DS_program'), 'ds_anomaly-detection', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'nlp') & (new_df.program_type == 'DS_program'), 'ds_nlp', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '11-nlp') & (new_df.program_type == 'DS_program'), 'ds_nlp', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'distributed-ml') & (new_df.program_type == 'DS_program'), 'ds_distributed-ml', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '12-distributed-ml') & (new_df.program_type == 'DS_program'), 'ds_distributed-ml', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'advanced-topics') & (new_df.program_type == 'DS_program'), 'ds_advanced-topics', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == '13-advanced-topics') & (new_df.program_type == 'DS_program'), 'ds_advanced-topics', new_df['class'])
+    new_df['class'] = np.where((new_df['class'] == 'appendix') & (new_df.program_type == 'DS_program'), 'ds_appendix', new_df['class'])
     
     # the remaining class names will be Full-Stack program
     new_df['class'] = np.where((new_df['class'] == '1-fundamentals'), 'fundamentals', new_df['class'])
@@ -102,6 +114,9 @@ def mass_log_clean(df):
     new_df['class'] = np.where((new_df['class'] == '3.0-mysql-overview'), 'mysql', new_df['class'])
     new_df['class'] = np.where((new_df['class'] == '13-advanced-topics'), 'advanced-topics', new_df['class'])
     new_df['class'] = np.where((new_df['class'] == '2-stats'), 'stats', new_df['class'])
+
+    # printing the shape
+    print(f'df shape after clean: {new_df.shape}')
 
     # returns the new df w/endpoint class and topics
     return new_df
